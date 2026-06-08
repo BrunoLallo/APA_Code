@@ -1,0 +1,3 @@
+/home/bruno-lallo/Documentos/Artigos/Artigo-APA-1Sem/Código/C++/build/CMakeFiles/app.dir
+/home/bruno-lallo/Documentos/Artigos/Artigo-APA-1Sem/Código/C++/build/CMakeFiles/edit_cache.dir
+/home/bruno-lallo/Documentos/Artigos/Artigo-APA-1Sem/Código/C++/build/CMakeFiles/rebuild_cache.dir
