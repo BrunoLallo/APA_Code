@@ -1,1 +1,0 @@
-/usr/bin/g++  -O3 -march=native -ffast-math -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/app.dir/link.d CMakeFiles/app.dir/main.cpp.o CMakeFiles/app.dir/src/Benchmarks.cpp.o CMakeFiles/app.dir/src/ConvEspacial.cpp.o CMakeFiles/app.dir/src/ConvFrequencial.cpp.o CMakeFiles/app.dir/src/ImagemCore.cpp.o CMakeFiles/app.dir/src/TransFourier.cpp.o -o app
