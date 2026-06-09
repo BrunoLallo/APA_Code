@@ -6,5 +6,5 @@ CXX_DEFINES = -DPASTA_IMAGENS=\"/home/bruno-lallo/Documentos/Artigos/Artigo-APA-
 
 CXX_INCLUDES = -I/home/bruno-lallo/Documentos/Artigos/Artigo-APA-1Sem/Código/C++/headers
 
-CXX_FLAGS = -g
+CXX_FLAGS =  -O3 -march=native -ffast-math -O3 -DNDEBUG
 

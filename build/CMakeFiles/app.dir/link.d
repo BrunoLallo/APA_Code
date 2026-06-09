@@ -32,6 +32,7 @@ app: \
   /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/libgcc_s.so.1 \
   /usr/lib/gcc/x86_64-linux-gnu/15/libgcc.a \
   /usr/lib/gcc/x86_64-linux-gnu/15/libgcc.a \
+  /usr/lib/gcc/x86_64-linux-gnu/15/crtfastmath.o \
   /usr/lib/gcc/x86_64-linux-gnu/15/crtendS.o \
   /usr/lib/gcc/x86_64-linux-gnu/15/../../../x86_64-linux-gnu/crtn.o \
   /lib64/ld-linux-x86-64.so.2
@@ -101,6 +102,8 @@ CMakeFiles/app.dir/src/TransFourier.cpp.o:
 /usr/lib/gcc/x86_64-linux-gnu/15/libgcc.a:
 
 /usr/lib/gcc/x86_64-linux-gnu/15/libgcc.a:
+
+/usr/lib/gcc/x86_64-linux-gnu/15/crtfastmath.o:
 
 /usr/lib/gcc/x86_64-linux-gnu/15/crtendS.o:
 

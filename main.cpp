@@ -26,21 +26,24 @@ int main() {
 
     std::string relatoriosPath = std::string(PASTA_RELATORIOS);
 
-    Imagem imgOriginal = carregarImagem(input + "test_image.png");
+    Imagem imgOriginal = carregarImagem(input + "test_image_1024.png");
 
-    int numLogs = 50;
+    int numLogs = 20;
 
     std::vector<RegistroBenchmark> logs(numLogs);
 
+    std::cout << "Rodando aquecimento para estabilizar Cache e RAM...\n";
+    rodarBenchmarkEspSeparavel(imgOriginal, Filtros::gerarMedia(3), 10);
+
     for (int i = 1; i <= numLogs; i++) {
-        Imagem kernel = Filtros::gerarMedia(1 + i * 2);
+        Imagem kernel = Filtros::gerarMedia(1 + i * 10);
         
-        RegistroBenchmark log = EXECUTAR_BENCHMARK(imgOriginal, kernel, 10, convolucaoIngenua);
+        RegistroBenchmark log = rodarBenchmarkEspSeparavel(imgOriginal, kernel, 25);
 
         logs[i-1] = log;
     }
 
-    exportarParaCSV(logs, relatoriosPath + "teste-Esp-Ingenua.csv");
+    exportarParaCSV(logs, relatoriosPath + "teste-Esp-Separavel.csv");
 
     return 0;
 }

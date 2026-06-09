@@ -8,7 +8,8 @@
 #include <chrono>
 #include <source_location>
 #include <utility>
-#include <cctype> // Necessário para std::isdigit
+#include <cctype>
+#include <malloc.h>
 #include <ImagemCore.h>
 #include <ImagemFreq.h>
 #include <ConvEspacial.h>
@@ -58,6 +59,8 @@ RegistroBenchmark rodarBenchmark(const std::string& nomeAlgoritmo, const Imagem&
 
     double memoriaInicial = obterMemoriaRamMB();
 
+    malloc_trim(0);
+
     for (int i = 0; i < iteracoes; i++) {
         auto inicio = std::chrono::high_resolution_clock::now();
 
@@ -90,6 +93,8 @@ template <typename Func>
 RegistroBenchmark rodarBenchmarkFrequencia(const std::string& nomeAlgoritmo, const Imagem& img, const Imagem& kernel, int iteracoes, Func transformada) {
     double tempoTotal = 0.0;
     double picoMemoriaDelta = 0.0;
+
+    malloc_trim(0);
 
     double memoriaInicial = obterMemoriaRamMB();
 
