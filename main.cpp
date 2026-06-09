@@ -11,7 +11,7 @@
 #include <TransFourier.h>
 #include <Filtros.h>
 
-RegistroBenchmark rodarBenchmarkEspSeparavel(const Imagem& img, const Imagem& kernel, int iteracoes) {
+std::vector<RegistroBenchmark> rodarBenchmarkEspSeparavel(const Imagem& img, const Imagem& kernel, int iteracoes) {
     auto [v, h] = separarKernel(kernel);
     auto wrapperSeparavel = [&](const Imagem& i, const Imagem& k_dummy) {
         return convolucaoSeparavel(i, v, h);
@@ -26,24 +26,33 @@ int main() {
 
     std::string relatoriosPath = std::string(PASTA_RELATORIOS);
 
-    Imagem imgOriginal = carregarImagem(input + "test_image_1024.png");
+    Imagem imgOriginal = carregarImagem(input + "test_image.png");
 
-    int numLogs = 20;
+    int numLogs = 10;
 
-    std::vector<RegistroBenchmark> logs(numLogs);
+    // Vetor mestre que irá armazenar os dados brutos de todas as iterações e de todos os kernels
+    std::vector<RegistroBenchmark> logsGerais;
 
-    std::cout << "Rodando aquecimento para estabilizar Cache e RAM...\n";
+    std::cout << "[INFO] Rodando aquecimento para estabilizar Cache e RAM...\n";
     rodarBenchmarkEspSeparavel(imgOriginal, Filtros::gerarMedia(3), 10);
 
     for (int i = 1; i <= numLogs; i++) {
-        Imagem kernel = Filtros::gerarMedia(1 + i * 10);
+        int tamanhoKernel = 1 + i * 10;
+        Imagem kernel = Filtros::gerarMedia(tamanhoKernel);
         
-        RegistroBenchmark log = rodarBenchmarkEspSeparavel(imgOriginal, kernel, 25);
+        int iteracoesAtuais = 50;
+        if (tamanhoKernel > 31) iteracoesAtuais = 25;
+        if (tamanhoKernel > 101) iteracoesAtuais = 10;
 
-        logs[i-1] = log;
+        std::cout << "[INFO] Testando Kernel " << tamanhoKernel << "x" << tamanhoKernel 
+                  << " | Iteracoes: " << iteracoesAtuais << "...\n";
+        
+        std::vector<RegistroBenchmark> logsDoKernel = EXECUTAR_BENCHMARK(imgOriginal, kernel, iteracoesAtuais, convolucaoIngenua);
+
+        logsGerais.insert(logsGerais.end(), logsDoKernel.begin(), logsDoKernel.end());
     }
 
-    exportarParaCSV(logs, relatoriosPath + "teste-Esp-Separavel.csv");
+    exportarParaCSV(logsGerais, relatoriosPath + "teste-Esp-Ingenua.csv");
 
     return 0;
 }

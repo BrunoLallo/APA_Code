@@ -22,7 +22,6 @@
 #define EXECUTAR_BENCHMARK_FREQ(img, kernel, iteracoes, algoritmo) \
     rodarBenchmarkFrequencia(#algoritmo, img, kernel, iteracoes, algoritmo)
 
-// Função nativa do Linux para obter a memória RAM física (VmRSS) usada pelo processo em MB
 inline double obterMemoriaRamMB() {
     std::ifstream arquivo("/proc/self/status");
     std::string linha;
@@ -48,54 +47,48 @@ struct RegistroBenchmark {
     int larguraKernel;
     int alturaKernel;
     double tempoMilissegundos;
-    double picoMemoriaMB; // Novo campo de RAM
+    double picoMemoriaMB;
     int iteracoesDoKernel;
 }; 
 
 template <typename Func>
-RegistroBenchmark rodarBenchmark(const std::string& nomeAlgoritmo, const Imagem& img, const Imagem& kernel, int iteracoes, Func algoritmo) {
-    double tempoTotal = 0.0;
-    double picoMemoriaDelta = 0.0;
-
-    double memoriaInicial = obterMemoriaRamMB();
+std::vector<RegistroBenchmark> rodarBenchmark(const std::string& nomeAlgoritmo, const Imagem& img, const Imagem& kernel, int iteracoes, Func algoritmo) {
+    std::vector<RegistroBenchmark> logsDaExecucao;
 
     malloc_trim(0);
+    double memoriaInicial = obterMemoriaRamMB();
 
     for (int i = 0; i < iteracoes; i++) {
         auto inicio = std::chrono::high_resolution_clock::now();
 
         Imagem resultado = algoritmo(img, kernel);
 
-        // Captura o pico de RAM logo após o processamento, enquanto 'resultado' e resíduos estão vivos
         double memoriaAtual = obterMemoriaRamMB() - memoriaInicial;
-        if (memoriaAtual > picoMemoriaDelta) picoMemoriaDelta = memoriaAtual;
 
         auto fim = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double, std::milli> tempoIteracao = fim - inicio;
 
-        tempoTotal += tempoIteracao.count();
+        RegistroBenchmark log;
+        log.algoritmo = nomeAlgoritmo;
+        log.larguraImagem = img.largura;
+        log.alturaImagem = img.altura;
+        log.larguraKernel = kernel.largura;
+        log.alturaKernel = kernel.altura;
+        log.tempoMilissegundos = tempoIteracao.count(); // Regista o tempo APENAS desta iteração
+        log.picoMemoriaMB = memoriaAtual;
+        log.iteracoesDoKernel = iteracoes;
+
+        logsDaExecucao.push_back(log);
     }
 
-    RegistroBenchmark log;
-    log.algoritmo = nomeAlgoritmo;
-    log.larguraImagem = img.largura;
-    log.alturaImagem = img.altura;
-    log.larguraKernel = kernel.largura;
-    log.alturaKernel = kernel.altura;
-    log.tempoMilissegundos = tempoTotal / iteracoes;
-    log.picoMemoriaMB = picoMemoriaDelta; // Registra o consumo
-    log.iteracoesDoKernel = iteracoes;
-
-    return log;
+    return logsDaExecucao;
 }
 
 template <typename Func>
-RegistroBenchmark rodarBenchmarkFrequencia(const std::string& nomeAlgoritmo, const Imagem& img, const Imagem& kernel, int iteracoes, Func transformada) {
-    double tempoTotal = 0.0;
-    double picoMemoriaDelta = 0.0;
+std::vector<RegistroBenchmark> rodarBenchmarkFrequencia(const std::string& nomeAlgoritmo, const Imagem& img, const Imagem& kernel, int iteracoes, Func transformada) {
+    std::vector<RegistroBenchmark> logsDaExecucao;
 
     malloc_trim(0);
-
     double memoriaInicial = obterMemoriaRamMB();
 
     int larguraSegura = img.largura + kernel.largura - 1;
@@ -104,7 +97,7 @@ RegistroBenchmark rodarBenchmarkFrequencia(const std::string& nomeAlgoritmo, con
     int tamanhoPot2 = proximaPotenciaDe2(larguraSegura);
 
     Imagem imgPad = aplicarZeroPadding(img, tamanhoPot2, tamanhoPot2, 0, 0);
-    Imagem kernelPad = aplicarZeroPadding(kernel, tamanhoPot2, tamanhoPot2, 0, 0); // Correção: Passando 'kernel' ao invés de 'img'
+    Imagem kernelPad = aplicarZeroPadding(kernel, tamanhoPot2, tamanhoPot2, 0, 0);
     
     for (int i = 0; i < iteracoes; i++) {
         auto inicio = std::chrono::high_resolution_clock::now();
@@ -118,9 +111,7 @@ RegistroBenchmark rodarBenchmarkFrequencia(const std::string& nomeAlgoritmo, con
 
         Imagem imgComPadding = calcularMagnitude(inversa);
 
-        // Ponto de maior exigência na RAM: Todas as matrizes complexas estão vivas na memória
         double memoriaAtual = obterMemoriaRamMB() - memoriaInicial;
-        if (memoriaAtual > picoMemoriaDelta) picoMemoriaDelta = memoriaAtual;
 
         Imagem saidaFinal(img.largura, img.altura);
         int inicioX = kernel.largura / 2;
@@ -133,22 +124,22 @@ RegistroBenchmark rodarBenchmarkFrequencia(const std::string& nomeAlgoritmo, con
         }
 
         auto fim = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double, std::milli> tempo = fim - inicio;
+        std::chrono::duration<double, std::milli> tempoIteracao = fim - inicio;
 
-        tempoTotal += tempo.count();
+        RegistroBenchmark log;
+        log.algoritmo = nomeAlgoritmo;
+        log.larguraImagem = img.largura;
+        log.alturaImagem = img.altura;
+        log.larguraKernel = kernel.largura;
+        log.alturaKernel = kernel.altura;
+        log.tempoMilissegundos = tempoIteracao.count(); // Regista o tempo APENAS desta iteração
+        log.picoMemoriaMB = memoriaAtual;
+        log.iteracoesDoKernel = iteracoes;
+
+        logsDaExecucao.push_back(log);
     }
 
-    RegistroBenchmark log;
-    log.algoritmo = nomeAlgoritmo;
-    log.larguraImagem = img.largura;
-    log.alturaImagem = img.altura;
-    log.larguraKernel = kernel.largura;
-    log.alturaKernel = kernel.altura;
-    log.tempoMilissegundos = tempoTotal / iteracoes;
-    log.picoMemoriaMB = picoMemoriaDelta; // Registra o consumo
-    log.iteracoesDoKernel = iteracoes;
-
-    return log;
+    return logsDaExecucao;
 }
 
 void exportarParaCSV(const std::vector<RegistroBenchmark>& logs, const std::string& nomeArquivo);
