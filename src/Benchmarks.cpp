@@ -8,7 +8,8 @@ void exportarParaCSV(const std::vector<RegistroBenchmark>& logs, const std::stri
         return;
     }
 
-    arquivo << "Algoritmo,LarguraImagem,AlturaImagem,LarguraKernel,AlturaKernel,Tempo_ms,Iteracoes\n";
+    // Adicionado o cabeçalho 'Memoria_MB'
+    arquivo << "Algoritmo,LarguraImagem,AlturaImagem,LarguraKernel,AlturaKernel,Tempo_ms,Memoria_MB,Iteracoes\n";
 
     for (const auto& log : logs) {
         arquivo << log.algoritmo << ","
@@ -17,6 +18,7 @@ void exportarParaCSV(const std::vector<RegistroBenchmark>& logs, const std::stri
                 << log.larguraKernel << ","
                 << log.alturaKernel << ","
                 << log.tempoMilissegundos << ","
+                << log.picoMemoriaMB << "," // Escrita da nova variável no CSV
                 << log.iteracoesDoKernel << "\n";
     }
 

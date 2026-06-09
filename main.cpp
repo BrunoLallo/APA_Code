@@ -28,19 +28,19 @@ int main() {
 
     Imagem imgOriginal = carregarImagem(input + "test_image.png");
 
-    int numLogs = 100;
+    int numLogs = 50;
 
     std::vector<RegistroBenchmark> logs(numLogs);
 
     for (int i = 1; i <= numLogs; i++) {
         Imagem kernel = Filtros::gerarMedia(1 + i * 2);
         
-        RegistroBenchmark log = rodarBenchmarkEspSeparavel(imgOriginal, kernel, 10);
+        RegistroBenchmark log = EXECUTAR_BENCHMARK(imgOriginal, kernel, 10, convolucaoIngenua);
 
         logs[i-1] = log;
     }
 
-    exportarParaCSV(logs, relatoriosPath + "teste-Esp-Separavel.csv");
+    exportarParaCSV(logs, relatoriosPath + "teste-Esp-Ingenua.csv");
 
     return 0;
 }
