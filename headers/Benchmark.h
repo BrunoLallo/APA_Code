@@ -34,7 +34,7 @@ inline double obterMemoriaRamMB() {
                     numeros += c;
                 }
             }
-            return std::stod(numeros) / 1024.0;
+            return std::stod(numeros);
         }
     }
     return 0.0;
@@ -47,7 +47,7 @@ struct RegistroBenchmark {
     int larguraKernel;
     int alturaKernel;
     double tempoMilissegundos;
-    double picoMemoriaMB;
+    double picoMemoriaKB;
     int iteracoesDoKernel;
 }; 
 
@@ -75,7 +75,7 @@ std::vector<RegistroBenchmark> rodarBenchmark(const std::string& nomeAlgoritmo, 
         log.larguraKernel = kernel.largura;
         log.alturaKernel = kernel.altura;
         log.tempoMilissegundos = tempoIteracao.count(); // Regista o tempo APENAS desta iteração
-        log.picoMemoriaMB = memoriaAtual;
+        log.picoMemoriaKB = memoriaAtual;
         log.iteracoesDoKernel = iteracoes;
 
         logsDaExecucao.push_back(log);
@@ -133,7 +133,7 @@ std::vector<RegistroBenchmark> rodarBenchmarkFrequencia(const std::string& nomeA
         log.larguraKernel = kernel.largura;
         log.alturaKernel = kernel.altura;
         log.tempoMilissegundos = tempoIteracao.count(); // Regista o tempo APENAS desta iteração
-        log.picoMemoriaMB = memoriaAtual;
+        log.picoMemoriaKB = memoriaAtual;
         log.iteracoesDoKernel = iteracoes;
 
         logsDaExecucao.push_back(log);

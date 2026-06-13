@@ -26,9 +26,12 @@ int main() {
 
     std::string relatoriosPath = std::string(PASTA_RELATORIOS);
 
-    Imagem imgOriginal = carregarImagem(input + "test_image_1024.png");
+    Imagem imgOriginal = carregarImagem(input + "test_image_512.png");
 
-    int numLogs = 10;
+    int externalLoops = 10;
+    int loopStep = 10;
+    // Tamanho máximo do kernel = 1 + loopStep * externalLoops
+    int internalLoops = 25;
 
     std::vector<RegistroBenchmark> logsEspIng;
     std::vector<RegistroBenchmark> logsEspSep;
@@ -37,59 +40,53 @@ int main() {
     std::cout << "[INFO] Rodando aquecimento para estabilizar Cache e RAM...\n";
     rodarBenchmarkEspSeparavel(imgOriginal, Filtros::gerarMedia(3), 10);
 
-    for (int i = 1; i <= numLogs; i++) {
-        int tamanhoKernel = 1 + i * 5;
+    // std::cout << "[INFO] Rodando benchmarks para convolução espacial ingênua...\n";
+
+    //for (int i = 1; i <= externalLoops; i++) {
+    //    int tamanhoKernel = 1 + i * loopStep;
+    //    Imagem kernel = Filtros::gerarMedia(tamanhoKernel);
+    //    
+    //    std::cout << "[INFO] Testando Kernel " << tamanhoKernel << "x" << tamanhoKernel 
+    //              << " | Iteracoes: " << internalLoops << "...\n";
+    //    
+    //    std::vector<RegistroBenchmark> logsDoKernel = EXECUTAR_BENCHMARK(imgOriginal, kernel, internalLoops, convolucaoIngenua);
+//
+    //    logsEspIng.insert(logsEspIng.end(), logsDoKernel.begin(), logsDoKernel.end());
+    //}
+
+    // exportarParaCSV(logsEspIng, relatoriosPath + "teste-Esp-Ingenua.csv");
+
+    // std::cout << "[INFO] Rodando benchmarks para convolução espacial separável...\n";
+
+    // for (int i = 1; i <= externalLoops; i++) {
+    //     int tamanhoKernel = 1 + i * loopStep;
+    //     Imagem kernel = Filtros::gerarMedia(tamanhoKernel);
+// 
+    //     std::cout << "[INFO] Testando Kernel " << tamanhoKernel << "x" << tamanhoKernel 
+    //               << " | Iteracoes: " << internalLoops << "...\n";
+    //     
+    //     std::vector<RegistroBenchmark> logsDoKernel = rodarBenchmarkEspSeparavel(imgOriginal, kernel, internalLoops);
+// 
+    //     logsEspSep.insert(logsEspSep.end(), logsDoKernel.begin(), logsDoKernel.end());
+    // }
+
+    // exportarParaCSV(logsEspSep, relatoriosPath + "teste-Esp-Separavel.csv");
+
+    std::cout << "[INFO] Rodando benchmarks para FFT 2D...\n";
+
+    for (int i = 1; i <= externalLoops; i++) {
+        int tamanhoKernel = 1 + i * loopStep;
         Imagem kernel = Filtros::gerarMedia(tamanhoKernel);
-        
-        int iteracoesAtuais = 25;
-        if (tamanhoKernel > 31) iteracoesAtuais = 10;
-        if (tamanhoKernel > 101) iteracoesAtuais = 5;
-
+    
         std::cout << "[INFO] Testando Kernel " << tamanhoKernel << "x" << tamanhoKernel 
-                  << " | Iteracoes: " << iteracoesAtuais << "...\n";
+                  << " | Iteracoes: " << internalLoops << "...\n";
         
-        std::vector<RegistroBenchmark> logsDoKernel = EXECUTAR_BENCHMARK(imgOriginal, kernel, iteracoesAtuais, convolucaoIngenua);
-
-        logsEspIng.insert(logsEspIng.end(), logsDoKernel.begin(), logsDoKernel.end());
-    }
-
-    exportarParaCSV(logsEspIng, relatoriosPath + "teste-Esp-Ingenua.csv");
-
-    for (int i = 1; i <= numLogs; i++) {
-        int tamanhoKernel = 1 + i * 5;
-        Imagem kernel = Filtros::gerarMedia(tamanhoKernel);
-        
-        int iteracoesAtuais = 25;
-        if (tamanhoKernel > 31) iteracoesAtuais = 10;
-        if (tamanhoKernel > 101) iteracoesAtuais = 5;
-
-        std::cout << "[INFO] Testando Kernel " << tamanhoKernel << "x" << tamanhoKernel 
-                  << " | Iteracoes: " << iteracoesAtuais << "...\n";
-        
-        std::vector<RegistroBenchmark> logsDoKernel = rodarBenchmarkEspSeparavel(imgOriginal, kernel, iteracoesAtuais);
-
-        logsEspSep.insert(logsEspSep.end(), logsDoKernel.begin(), logsDoKernel.end());
-    }
-
-    exportarParaCSV(logsEspSep, relatoriosPath + "teste-Esp-Separavel.csv");
-
-    for (int i = 1; i <= numLogs; i++) {
-        int tamanhoKernel = 1 + i * 5;
-        Imagem kernel = Filtros::gerarMedia(tamanhoKernel);
-        
-        int iteracoesAtuais = 25;
-        if (tamanhoKernel > 31) iteracoesAtuais = 10;
-        if (tamanhoKernel > 101) iteracoesAtuais = 5;
-
-        std::cout << "[INFO] Testando Kernel " << tamanhoKernel << "x" << tamanhoKernel 
-                  << " | Iteracoes: " << iteracoesAtuais << "...\n";
-        
-        std::vector<RegistroBenchmark> logsDoKernel = EXECUTAR_BENCHMARK_FREQ(imgOriginal, kernel, iteracoesAtuais, fft2D);
+        std::vector<RegistroBenchmark> logsDoKernel = EXECUTAR_BENCHMARK_FREQ(imgOriginal, kernel, internalLoops, fft2D);
 
         logsFft2d.insert(logsFft2d.end(), logsDoKernel.begin(), logsDoKernel.end());
     }
 
-    exportarParaCSV(logsFft2d, relatoriosPath + "teste-Freq-FFT-2-Radix.csv");
+    exportarParaCSV(logsFft2d, relatoriosPath + "teste-Freq-FFT-2-Radix-5.csv");
 
     return 0;
 }
